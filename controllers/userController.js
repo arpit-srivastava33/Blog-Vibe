@@ -1,3 +1,4 @@
+
 const userModel = require('../models/userModel')
 const bcrypt = require('bcrypt');
 
@@ -17,6 +18,13 @@ exports.registerController = async (req, res) => {
         if (isExist) {
             return res.status(401).send({
                 message: "User Already Exists!",
+                success: false
+            })
+        }
+        // password check
+        if (password.length < 6) {
+            return res.status(400).send({
+                message: "Password must be atleast of 6 length!",
                 success: false
             })
         }
@@ -73,6 +81,14 @@ exports.loginController = async (req, res) => {
                 message: 'Please provide email or password'
             })
         }
+
+        // const errors = validationResult(req);
+        // if (!errors.isEmpty()) {
+        //     return res.status(400).send({
+        //         success: false,
+        //         errors: errors.array()
+        //     })
+        // }
         // email check
         const user = await userModel.findOne({ email });
         if (!user) {
@@ -81,6 +97,14 @@ exports.loginController = async (req, res) => {
                 message: "Email is not registered"
             })
         }
+        // password length check
+        if (password.length < 6) {
+            return res.status(401).send({
+                message: "Password must be atleast of 6 length!",
+                success: false
+            })
+        }
+
         // password check
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
